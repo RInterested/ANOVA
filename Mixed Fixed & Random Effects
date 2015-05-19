@@ -1,0 +1,314 @@
+#http://www.unt.edu/rss/class/Jon/R_SC/Module9/LMM_Examples.R
+#
+### Brief Introduction to LINEAR MIXED MODELS in R ###
+#
+# Also known as: Fixed and Random Effects Models, Nested effects Models, Mixed Effect Models, 
+# and Hierarchical Linear Modeling.
+#
+# Read in / import the example data, naming it 'lmm.data'.
+
+lmm.data <- read.table("http://www.unt.edu/rss/class/Jon/R_SC/Module9/lmm.data.txt",
+   header=TRUE, sep=",", na.strings="NA", dec=".", strip.white=TRUE)
+summary(lmm.data)
+head(lmm.data)
+nrow(lmm.data)
+
+##### function lm #####
+# Traditional OLS Linear Regression (Linear Models [lm]) can be used to evaluate multiple 
+# simple models (each with multiple predictors/covariates), often called sequential or hierarchical 
+# regression; using the 'anova' function to test one model against another (evaluating whether 
+# R-squared change or difference is significant).
+
+lm.1 <- lm(extro ~ open + social, data = lmm.data)
+summary(lm.1)
+
+lm.2 <- lm(extro ~ open + agree + social, data = lmm.data) 
+summary(lm.2)
+
+anova(lm.1, lm.2)
+
+# However, tradiational OLS Linear Regression can not handle nested (random) effects; such as 
+# the model(s) above when scores are located at level 1 (classrooms) nested within level 2 (schools). 
+# The next two Linear Models (lm) demonstrate this. Notice in the output, the (categorical) factors
+# are automatically dummy coded as would be necessary for them to be considered appropriate predictors 
+# in OLS linear regression (but, their nested nature is not specified).
+
+lm.3 <- lm(extro ~ open + social + class + school, data = lmm.data)
+summary(lm.3)
+
+lm.4 <- lm(extro ~ open + agree + social + class + school, data = lmm.data)
+summary(lm.4)
+
+anova(lm.3, lm.4)
+
+# In the next two models, the 'class:school' type of specification is used to specify interaction 
+# terms (e.g., the interaction of class and school), which is quite a different situation than one 
+# with random effects (e.g., nested variables). The output of both models show 'NA' where an interaction 
+# term is redundant with one listed somewhere above it (there are 4 classes and 6 schools). 
+
+lm.5 <- lm(extro ~ open + social + class:school, data = lmm.data)
+summary(lm.5)
+
+lm.6 <- lm(extro ~ open + agree + social + class:school, data = lmm.data)
+summary(lm.6)
+
+anova(lm.5, lm.6)
+
+##### Function glm #####
+# Even the more flexible Generalized Linear Model (glm) function can not handle nested effects, although it can 
+# handle some types of random effects (e.g., repeated measures designs/data which is not covered here). The primary 
+# benefit of the 'glm' function is the ability to specify non-Gaussian distributions (a Gaussian distribution is 
+# a normal distribution). Also, the output from the 'glm' function offers the Akaike Information Criterion (AIC) 
+# which can be used to compare models and is much preferred over something like R-square or even adjusted R-square 
+# (lower AIC indicates a better fitting model; an AIC of -22.45 indicates a better fitting model than one with 
+# an AIC of 14.25). 
+
+glm.1 <- glm(extro ~ open + social + class + school, data = lmm.data)
+summary(glm.1)
+
+# The following models are specifying an interaction between 'class' and 'school', which does not specify nesting.
+# Of course, the two models below mirror the regression results from models 'lm.5' and 'lm.6' above.
+
+glm.2 <- glm(extro ~ open + social + class:school, data = lmm.data)
+summary(glm.2)
+
+glm.3 <- glm(extro ~ open + agree + social + class:school, data = lmm.data)
+summary(glm.3)
+
+
+##### Package 'lme4' function 'lmer' #####
+# In order to adequately test these nested (random) effects, we must turn to another type of modeling 
+# function/package. 
+# There are several ways to go about this, only one of which is mentioned here (lmer).
+
+# Load the necessary library for model fitting.
+
+library(lme4)
+
+# The Linear Mixed Effects (lme4) package [which offers the 'lmer' function, below] is designed 
+# to fit a linear mixed model or a generalized linear mixed model or a nonlinear mixed model. Below, we fit 
+# linear mixed effect models with fixed effects for open & social or open, agree, & social, as well as 
+# random/nested effects for class within school; to predict scores on the outcome variable, extroversion (extro). 
+# Note in the output we can use the Baysian Information Criterion (BIC) to compare models; which is 
+# similar to, but more conservative than (and thus preferred over) the AIC mentioned previously. Like AIC; lower 
+# BIC reflects better model fit (i.e., a BIC of -22.634 is better than a BIC of 5.657). The 'lmer' function uses 
+# REstricted Maximum Likelihood (REML) to estimate the variance components (which is preferred over 
+# standard Maximum Likelihood; also available as an option). 
+# Note below, class is nested within school, class is 'under' school. Random effects are specified inside 
+# parentheses and can be repreated measures, interaction terms, or nested (as is the case here). Simple 
+# interactions simply use the colon separator: (1|school:class).
+
+lmm.1 <- lmer(extro ~ open + social + class + (1|school/class), data = lmm.data)
+summary(lmm.1)
+
+lmm.2 <- lmer(extro ~ open + agree + social + class + (1|school/class), data = lmm.data)
+summary(lmm.2)
+
+# To extract the estimates of the fixed effects parameters.
+
+fixef(lmm.2)
+
+# To extract the estimates of the random effects parameters.
+
+ranef(lmm.2)
+
+# To extract the coefficients for each group of the random effect factor (class = 2 groups + school
+# = 2 groups == 4 groups).
+
+coef(lmm.2)
+
+coef(lmm.2)$'class:school'
+
+# To extract the predicted values (based on the fitted model).
+
+yhat <- fitted(lmm.2)
+summary(yhat)
+
+# To extract the residuals (errors); and summarize, as well as plot them.
+
+residuals <- resid(lmm.2) 
+summary(residuals)
+hist(residuals)
+
+### One other thing worth taking a look at is the Intra Class Correlation.
+
+# First, run the 'null' model (which includes just the intercepts and the random effect for the highest level
+# of the nesting variables; in this example 'school'.
+
+lmm.null <- lmer(extro ~ 1 + (1|school), data = lmm.data)
+summary(lmm.null)
+
+# Notice the variance component estimates for the random effect. If we add these together, then 
+# divide that total by the 'school' variance estimate; we get the ICC
+
+95.8720 + 7.1399
+
+95.8720 / 103.0119
+
+# This indicates that 93.06886% of the variance in 'extro' can be "explained" by school 
+# group membership (verified below using Bliese's multilevel package).
+
+# ICC1 and ICC2 as described by Bliese. 
+
+library(multilevel)
+
+aov.1 <- aov(extro ~ school, lmm.data)
+summary(aov.1)
+
+# Below (ICC1) indicates that 93.07% of the variance in 'extro' can be "explained" by school 
+# group membership.
+
+ICC1(aov.1)
+
+# The ICC2 value (below) of .9996 indicates that school groups can be very reliably differentiated in terms of 
+# 'extro' scores.
+
+ICC2(aov.1)
+
+detach("package:multilevel")
+
+#### Simulating the Posterior Distribution of Predicted Values.
+# To simulate a posterior distribution you must load the 'arm' package
+# and use the 'sim' function. Note: n = 100 is the default for 'sim'.
+
+library(arm)
+
+sim.100 <- sim(lmm.2, n = 100)
+
+# Show the structure of objects in the 'sim' object.
+
+str(sim.100)
+
+# Fixed effect parameter estimates resulting from the 'sim' function applied to the fitted model (lmm.3).
+
+fe.sim <- fixef(sim.100)
+fe.sim
+
+# Random effect parameter estimates resulting from the 'sim' function applied to the fitted model (lmm.3).
+
+re.sim <- ranef(sim.100)
+re.sim[[1]]  # For "class:school" random effect.
+re.sim[[2]]  # For "school" random effect.
+
+# To get predicted values from the posterior distribution, use the 'fitted' function.
+
+yhat.lmm.2 <- fitted(sim.100, lmm.2)
+head(yhat.lmm.2)
+tail(yhat.lmm.2)
+
+# The above object (yhat.lmm.2) is a matrix of 100 (simulations) by 1200 participants.
+# In this matrix, each row represents a participant and each column represents a simulated
+# predicted value for the outcome variable of our lmm.2 model.
+# Therefore, the yhat.lmm.2 object can be used to create credible intervals for
+# each participant (i.e. individual level).
+
+quantile(yhat.lmm.2, probs = c(.025, .985))  # For first participant (i.e. row 1).
+
+# We can also create a data frame with the quantiles for every participant.
+
+quant.mat <- data.frame(matrix(rep(NA, 1200*2), ncol = 2))
+names(quant.mat) <- c("2.5%", "98.5%")
+quant.mat[,1] <- apply(yhat.lmm.2, 1, quantile, probs = .025)
+quant.mat[,2] <- apply(yhat.lmm.2, 1, quantile, probs = .985)
+
+head(quant.mat, 25)
+
+detach("package:arm")
+
+#####################################################################################################################
+#####################################################################################################################
+
+# NOTE: These results will not match up with the same procedures on the same data, run in SPSS (Linear Mixed Models) 
+# or run in SAS (PROC MIXED); although SPSS and SAS match one another. It has been discovered that the descrepancy 
+# is due to different reference coding of the categorical variables when in SPSS and SAS compared to the 'lme4' 
+# package and 'lmer' function. Essentially, all the R functions used here (in this script) code categorical 
+# factors / variables so that the reference category is the category with the LOWEST numerical value (or 
+# alphabetically first letter). SPSS and SAS both use the opposite strategy; they code 
+# categorical factors / variables so that the reference category is the category with the HIGHEST numerical 
+# value (or alphabetically last letter). This is important to note because, the SPSS/SAS 
+# Mixed Effects model output produces an intercept term for the fixed effects which is substantially different 
+# from the intercept term for the fixed effects produced by the 'lme4' package; and of course, with different 
+# intercepts comes different predicted values based on the model. If interested in getting SPSS or SAS output 
+# to match what is produced by this script, then simply reverse code the values of the categorical variables 
+# when the data is imported to SPSS or SAS. Meaning, for instance with the class variable; any case with a value 
+# of "a" would be changed to a value of "d" and vice versa, any case with a value of "c" would be changed to a 
+# value of "b" and vice versa. 
+
+
+detach("package:lme4")
+detach("package:Matrix")
+detach("package:Rcpp")
+
+####################################################################################
+
+
+######## Additional Considerations ########
+######           CENTERING           ######
+
+# In many situation in social science, the predictor variables we deal with do not have a meaningful (or true) zero 
+# point. For instance, a person is not going to have a intelligence test score of zero. In these 
+# situations it is common to do some type of Centering. Grand mean centering is much more common than Group 
+# mean centering because, Group mean centering can change the estimation, fit, and interpretation of hierarchical
+# linear models. Grand mean centering results in equivalent models as would be the case if raw scores were used. 
+# Using either method, the mean of the predictor variable becomes zero after subtracting the Grand mean 
+# or Group mean from each score. Grand mean centering predictor variables at level one often makes interpretation 
+# easier and can decrease multicollinearity. 
+
+
+#########  REFERENCES & RESOURCES  #########
+
+# Akaike, H. (1974). A new look at the statistical model identification. I.E.E.E. Transactions on Automatic Control, AC 19, 716 – 723. 
+# Available at:
+# http://www.unt.edu/rss/class/Jon/MiscDocs/Akaike_1974.pdf
+
+# Bartko, J. J. (1976). On various intraclass correlation reliability coefficients. Psychological Bulletin, 83, 762-765.
+# http://www.unt.edu/rss/class/Jon/MiscDocs/Bartko_1976.pdf
+
+# Bates, D., & Maechler, M. (2010). Package ‘lme4’. Reference manual for the package, available at:
+# http://cran.r-project.org/web/packages/lme4/lme4.pdf
+
+# Bates, D. (2010). Linear mixed model implementation in lme4. Package lme4 vignette, available at:
+# http://cran.r-project.org/web/packages/lme4/vignettes/Implementation.pdf
+
+# Bates, D. (2010). Computational methods for mixed models. Package lme4 vignette, available at:
+# http://cran.r-project.org/web/packages/lme4/vignettes/Theory.pdf
+
+# Bates, D. (2010). Penalized least squares versus generalized least squares representations of linear mixed models. Package lme4 
+# vignette, available at:
+# http://cran.r-project.org/web/packages/lme4/vignettes/PLSvGLS.pdf
+
+# Bliese, P. (2009). Multilevel modeling in R: A brief introduction to R, the multilevel package and the nlme package. Available at:
+# http://cran.r-project.org/doc/contrib/Bliese_Multilevel.pdf
+
+# Draper, D. (1995). Inference and hierarchical modeling in the social sciences. Journal of Educational and Behavioral Statistics, 20(2), 
+# 115 - 147. Available at:
+# http://www.unt.edu/rss/class/Jon/MiscDocs/Draper_1995.pdf
+
+# Fox, J. (2002). Linear mixed models: An appendix to “An R and S-PLUS companion to applied regression”. Available at:
+# http://cran.r-project.org/doc/contrib/Fox-Companion/appendix-mixed-models.pdf
+
+# Gelman, A. (2005). Analysis of variance -- why it is more important than ever. The Annals of Statistics, 33(1), 1 -- 53. Available at:
+# http://www.unt.edu/rss/class/Jon/MiscDocs/Gelman_2005.pdf
+
+# Hofmann, D. A., Griffin, M. A., & Gavin, M. B. (2000). The application of hierarchical linear modeling to organizational research. 
+# In K. J. Klein (Ed.), Multilevel theory, research, and methods in organizations: Foundations, extensions, and new directions (p. 467 - 511). 
+# San Francisco, CA: Jossey-Bass. Available at:
+# http://www.unt.edu/rss/class/Jon/MiscDocs/Hofmann_2000.pdf
+
+# Raudenbush, S. W. (1995). Reexamining, reaffirming, and improving application of hierarchical models. Journal of Educational and Behavioral 
+# Statistics, 20(2), 210 - 220. Available at:
+# http://www.unt.edu/rss/class/Jon/MiscDocs/Raudenbush_1995.pdf
+
+# Raudenbush, S. W. (1993). Hierarchical linear models and experimental design. In L. Edwards (Ed.), Applied analysis of variance in behavioral 
+# science (p. 459 - 496). New York: Marcel Dekker. Available at:
+# http://www.unt.edu/rss/class/Jon/MiscDocs/Raudenbush_1993.pdf
+
+# Rogosa, D., & Saner, H. (1995). Longitudinal data analysis examples with random coefficient models. Journal of Educational and Behavioral 
+# Statistics, 20(2), 149 - 170. Available at:
+# http://www.unt.edu/rss/class/Jon/MiscDocs/Rogosa_1995.pdf
+
+# Schwarz, G. (1978). Estimating the dimension of a model. Annals of Statistics, 6, 461 – 464. Available at:
+# http://www.unt.edu/rss/class/Jon/MiscDocs/Schwarz_1978.pdf
+
+
+#### End: 2010.11.05; updated 2014.10.22.
