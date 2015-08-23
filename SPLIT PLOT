@@ -7,3 +7,9 @@ head(data)
 model <- aov(yield ~ irrigation * density * fertilizer + 
                  Error(block/irrigation/density), data)
 summary(model)
+
+request(lmer4)
+fit <- lmer(yield ~ irrigation * density * fertilizer +
+                (1|block) + (1|irrigation:block) + 
+                (1|density:block), data)
+summary(fit)
