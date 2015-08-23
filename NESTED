@@ -17,7 +17,3 @@ summary(fit)
 require(lme4)
 fit<-lmer(Glycogen~Treatment+(1|Treatment/Rat/Liver), rats)
 summary(fit); anova(fit)
-coefs <- data.frame(coef(summary(fit)))
-# use normal distribution to approximate p-value
-coefs$p.z <- 2 * (1 - pnorm(abs(coefs$t.value)))
-coefs
