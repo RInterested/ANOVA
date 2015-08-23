@@ -5,13 +5,15 @@ splitplot <- read.csv(text =
                                  format ='csv'))
 head(splitplot)
 summary(splitplot)
-attach(splitplot)
+
+## ANOVA:
 model <- aov(yield ~ irrigation * density * fertilizer + 
                  Error(block/irrigation/density), splitplot)
 summary(model)
 
+## MIXED MODELS:
 require(lme4)
 g1 <- block:irrigation
 g2 <- block:irrigation:density
 g3 <- block:irrigation:density:fertilizer
-fit <- lmer(yield~irrigation*density*fertilizer+(1|g1)+(1|g2)+(1|g3)); anova(fit)
+fit <- lmer(yield~irrigation*density*fertilizer+(1|g1)+(1|g2)+(1|g3), splitplot); summary(fit); anova(fit)
