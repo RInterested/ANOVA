@@ -13,8 +13,6 @@ summary(model)
 
 ## MIXED MODELS:
 require(lme4)
-attach(splitplot)
-g1 <- block:irrigation
-g2 <- block:irrigation:density
-g3 <- block:irrigation:density:fertilizer
-fit <- lmer(yield~irrigation*density*fertilizer+(1|g1)+(1|g2)+(1|g3), splitplot); summary(fit); anova(fit)
+fit <- lmer(yield~(irrigation+density+fertilizer)^2 +
+	                         (1|block/irrigation/density), data=splitplot)
+summary(fit); anova(fit)        
