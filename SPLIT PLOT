@@ -1,15 +1,16 @@
 install.packages('gsheet')
 library(gsheet)
-data <- read.csv(text = 
-gsheet2text('https://docs.google.com/spreadsheets/d/1THGClMt_bkP4lYIWqpI3S5mg0uRlGLrP48aVTTIvnX4/edit?usp=sharing',
-format ='csv'))
-head(data)
+splitplot <- read.csv(text = 
+                     gsheet2text('https://docs.google.com/spreadsheets/d/1THGClMt_bkP4lYIWqpI3S5mg0uRlGLrP48aVTTIvnX4/edit?usp=sharing',
+                                 format ='csv'))
+head(splitplot)
 model <- aov(yield ~ irrigation * density * fertilizer + 
-                 Error(block/irrigation/density), data)
+                 Error(block/irrigation/density), splitplot)
 summary(model)
 
-request(lmer4)
- g1 <- block:irrigation
-    g2 <- block:irrigation:density
-    g3 <- block:irrigation:density:fertilizer
-    fit <- lmer(yield~irrigation*density*fertilizer+(1|g1)+(1|g2)+(1|g3)); anova(fit)
+require(lme4)
+attach(splitplot)
+g1 <- block:irrigation
+g2 <- block:irrigation:density
+g3 <- block:irrigation:density:fertilizer
+fit <- lmer(yield~irrigation*density*fertilizer+(1|g1)+(1|g2)+(1|g3)); anova(fit)
