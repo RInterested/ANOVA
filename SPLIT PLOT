@@ -1,0 +1,9 @@
+install.packages('gsheet')
+library(gsheet)
+data <- read.csv(text = 
+gsheet2text('https://docs.google.com/spreadsheets/d/1THGClMt_bkP4lYIWqpI3S5mg0uRlGLrP48aVTTIvnX4/edit?usp=sharing',
+format ='csv'))
+head(data)
+model <- aov(yield ~ irrigation * density * fertilizer + 
+                 Error(block/irrigation/density), data)
+summary(model)
