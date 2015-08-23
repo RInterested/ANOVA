@@ -1,11 +1,18 @@
+## http://r.789695.n4.nabble.com/lme4-How-to-specify-nested-factors-meaning-of-and-in-td853351.html
+
 install.packages('gsheet')
 library(gsheet)
 rats <- read.csv(text = 
 gsheet2text('https://drive.google.com/open?id=1bAXU6OKVtaC1pVf5dAI2ihXQJTaW_71zah_Ikos1kDw',
 format ='csv'))
 head(rats)
+
+## ANOVA:
+
 fit <- aov(Glycogen ~ Treatment + Error(Treatment/Rat/Liver), rats) 
 summary(fit)
+
+## MIXED EFFECTS:
 
 require(lme4)
 fit<-lmer(Glycogen~Treatment+(1|Treatment/Rat/Liver), rats)
