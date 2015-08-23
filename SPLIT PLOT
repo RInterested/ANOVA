@@ -13,6 +13,7 @@ summary(model)
 
 ## MIXED MODELS:
 require(lme4)
+attach(splitplot)
 g1 <- block:irrigation
 g2 <- block:irrigation:density
 g3 <- block:irrigation:density:fertilizer
