@@ -1,12 +1,11 @@
 install.packages('gsheet')
 library(gsheet)
-data <- read.csv(text = 
+rats <- read.csv(text = 
 gsheet2text('https://drive.google.com/open?id=1bAXU6OKVtaC1pVf5dAI2ihXQJTaW_71zah_Ikos1kDw',
 format ='csv'))
-head(data)
-fit <- aov(Glycogen ~ Treatment + Error(Treatment/Rat/Liver), data) 
+head(rats)
+fit <- aov(Glycogen ~ Treatment + Error(Treatment/Rat/Liver), rats) 
 summary(fit)
 
-fit <- lmer(Glycogen ~ Treatment +
-    (1|Rat:Treatment), + (1|Liver:Treatment), data=data)
-summary(fit)
+fit<-lmer(Glycogen~Treatment+(1|Treatment/Rat/Liver)
+anova(fit)
