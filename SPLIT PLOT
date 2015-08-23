@@ -1,19 +1,19 @@
 install.packages('gsheet')
 library(gsheet)
-splitplot <- read.csv(text = 
+splityield <- read.csv(text = 
                      gsheet2text('https://docs.google.com/spreadsheets/d/1THGClMt_bkP4lYIWqpI3S5mg0uRlGLrP48aVTTIvnX4/edit?usp=sharing',
                                  format ='csv'))
-head(splitplot)
-summary(splitplot)
+head(splityield)
+summary(splityield)
 
 ## ANOVA:
-model <- aov(yield ~ irrigation * density * fertilizer + 
-                 Error(block/irrigation/density), splitplot)
-summary(model)
+fit <- aov(yield ~ irrigation * density * fertilizer + 
+                 Error(block/irrigation/density), splityield)
+summary(fit)
 
 ## MIXED MODELS:
 require(lme4)
 fit <- lmer(yield~(irrigation+density+fertilizer)^2 +
-	                         (1|block/irrigation/density), data=splitplot)
+	                         (1|block/irrigation/density), data=splityield)
 summary(fit); anova(fit)        
 
