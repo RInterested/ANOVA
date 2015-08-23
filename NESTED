@@ -7,5 +7,5 @@ head(rats)
 fit <- aov(Glycogen ~ Treatment + Error(Treatment/Rat/Liver), rats) 
 summary(fit)
 
-fit<-lmer(Glycogen~Treatment+(1|Treatment/Rat/Liver))
+fit<-lmer(Glycogen~Treatment+(1|Treatment/Rat/Liver), rats)
 anova(fit)
