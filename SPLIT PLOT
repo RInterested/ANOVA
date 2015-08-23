@@ -9,7 +9,7 @@ model <- aov(yield ~ irrigation * density * fertilizer +
 summary(model)
 
 request(lmer4)
-fit <- lmer(yield ~ irrigation * density * fertilizer +
-                (1|block) + (1|irrigation:block) + 
-                (1|density:block), data)
-summary(fit)
+ g1 <- block:irrigation
+    g2 <- block:irrigation:density
+    g3 <- block:irrigation:density:fertilizer
+    fit <- lmer(yield~irrigation*density*fertilizer+(1|g1)+(1|g2)+(1|g3)); anova(fit)
