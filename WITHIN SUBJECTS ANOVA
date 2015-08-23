@@ -1,0 +1,11 @@
+## CREDIT: http://www.personality-project.org/r/r.anova.html
+
+install.packages('gsheet')
+library(gsheet)
+data <- read.csv(text = 
+gsheet2text('https://drive.google.com/open?id=1iVDJ_g3MjhxLhyyLHGd4PhYhsYW7Ob0JmaJP8MarWXU',
+format ='csv'))
+fit <- aov(Recall ~ Valence + Error(Subject/Valence),data)
+summary(fit)
+print(model.tables(fit,"means"),digits=3)       
+boxplot(Recall ~ Valence,data=data) 
