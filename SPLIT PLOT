@@ -1,4 +1,6 @@
-# http://www.maths.bath.ac.uk/~jjf23/mixchange/split.html
+### FIRST EXAMPLE:
+
+#From http://www.maths.bath.ac.uk/~jjf23/mixchange/split.html
 
 library(lme4)
 library(faraway)
@@ -21,24 +23,55 @@ summary(mmod2); anova(mmod2)
 lmod <- aov(yield ~ irrigation*variety + Error(field), irrigation)
 summary(lmod)
 
+
+### SECOND EXAMPLE:
+
 library(gsheet)
 splityield <- read.csv(text = 
                          gsheet2text('https://docs.google.com/spreadsheets/d/1THGClMt_bkP4lYIWqpI3S5mg0uRlGLrP48aVTTIvnX4/edit?usp=sharing',
                                      format ='csv'))
 head(splityield)
 summary(splityield)
-ggplot(splityield, aes(y=yield, x=block, shape=irrigation, color=fertilizer)) + geom_point()
 str(splityield)
 
+
+#aov approach:
+
+# From The R Book Michael J Crawley
+# The model formula is specified as a factorial, using the asterisk notation.
+# the error structure is defined in the ERROR term, with the plot sizes 
+# (4 fields (blocks) are the larges plots, followed by their split in half
+# each either irrigated tor not, and followed by three divisions (even smaller
+# plots for low, medium or high denisty), and again followed by three divisions
+# for fertilizer (N, P, or NP) - this last being the smallest plot size with the
+# highest replication).  The error terms are listed from left to right, from 
+# largest to smallest, separated by / . NOTE: the smallest plot size (fertilizer)
+# does not appear in the ERROR term:
+
+fitb <- aov(yield ~ irrigation * density * fertilizer + 
+              Error(block/irrigation/density), splityield)
+summary(fitb)
+
+# There are 4 ANOVA tables, one for each plot size:
+# The non-significant main effect for density (p = 0.0532) doesn't mean
+# density is unimportant because it is a significant interaction with irrigation
+
+# Understanding interactions:
+
+attach(splityield)
+interaction.plot(fertilizer, irrigation, yield)
+interaction.plot(density, irrigation, yield)
+
+
 #lmer approach:
-fita <- lmer(yield ~ irrigation * density * fertilizer + (1|block), data = splityield)
+fita <- lmer(yield ~ irrigation * density * fertilizer + (1|block/irrigation/density), data = splityield)
 summary(fita, correlation = F)
 anova(fita)
 confint(fita)
 
 #... and without interactions:
 
-fit_noin <- lmer(yield ~ irrigation + density + fertilizer + (1|block), data = splityield)
+fit_noin <- lmer(yield ~ irrigation + density + fertilizer + (1|block/irrigation/density), data = splityield)
 summary(fit_noin, correlation = F)
 anova(fit_noin)
 confint(fit_noin)
@@ -49,11 +82,9 @@ KRmodcomp(fita, fit_noin)
 #nlme:
 
 library(nlme)
-fita1 <- lme(yield ~ irrigation * density * fertilizer, random=~1|block, splityield)
+fita1 <- lme(yield ~ irrigation * density * fertilizer, 
+             random=~1|block/irrigation/density, splityield)
 summary(fita1); anova(fita1)
 
 
-#aov approach:
 
-fitb <- aov(yield ~ irrigation*density*fertilizer + Error(block), splityield)
-summary(fitb)
