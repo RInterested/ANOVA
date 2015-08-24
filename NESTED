@@ -16,4 +16,4 @@ summary(fit)
 
 require(lme4)
 fit<-lmer(Glycogen~Treatment+(1|Treatment/Rat/Liver), rats)
-summary(fit); anova(fit)
+summary(fit); anova(fit); confint(fit)
