@@ -1,3 +1,5 @@
+# http://www.maths.bath.ac.uk/~jjf23/mixchange/split.html
+
 install.packages('gsheet')
 library(gsheet)
 splityield <- read.csv(text = 
@@ -7,13 +9,16 @@ head(splityield)
 summary(splityield)
 
 ## ANOVA:
+fit <- aov(yield ~ irrigation*fertilizer + Error(block), data=splityield)
+summary(lmod)
 fit <- aov(yield ~ irrigation * density * fertilizer + 
                  Error(block/irrigation/density), splityield)
 summary(fit)
 
 ## MIXED MODELS:
 require(lme4)
-fit <- lmer(yield~(irrigation+density+fertilizer)^2 +
-	                         (1|block/irrigation/density), data=splityield)
-summary(fit); anova(fit)        
+fit <- lmer(yield ~ irrigation * fertilizer + (1|block),data=splityield)
+print(summary(mmod),correlation=FALSE)
+summary(fit); anova(fit)       
+confint(fit)
 
