@@ -14,9 +14,9 @@ format ='csv'))
 ## ANOVA (aov) model:
 
 fit_aov <- aov(Recall ~ Valence + Error(Subject), data) ## Same as aov(Recall ~ Valence + Error(Subject/Valence), data)
-summary(fit); anova(fit)
-print(model.tables(fit,"means"),digits=3)       
-boxplot(Recall ~ Valence,data=data) 
+summary(fit_aov); anova(fit_aov)
+print(model.tables(fit_aov,"means"),digits=3)       
+boxplot(Recall ~ Valence, data=data) 
 
 ## MIXED-EFFECTS model:
 
