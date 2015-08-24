@@ -63,6 +63,7 @@ str(splityield)
 fit_aov <- aov(yield ~ irrigation * density * fertilizer + 
               Error(block/irrigation/density), splityield)
 summary(fit_aov)
+print(model.tables(fit_aov,"means"), digits=3) 
 
 # There are 4 ANOVA tables, one for each plot size:
 # The non-significant main effect for density (p = 0.0532) doesn't mean
