@@ -1,11 +1,33 @@
 ## CREDIT: http://www.personality-project.org/r/r.anova.html
+## We have five indivuals (Subjects), and each one of them tries to memorize three types of words ("Neutral", "Positive",
+## and "Negative), so-called, "Valence". We assess the "Recall" rate (DV - continuous).
 
+# If not installed:
 install.packages('gsheet')
+
+# Loading data:
 library(gsheet)
 data <- read.csv(text = 
 gsheet2text('https://drive.google.com/open?id=1iVDJ_g3MjhxLhyyLHGd4PhYhsYW7Ob0JmaJP8MarWXU',
 format ='csv'))
-fit <- aov(Recall ~ Valence + Error(Subject/Valence),data)
-summary(fit)
+
+## ANOVA (aov) model:
+
+fit_aov <- aov(Recall ~ Valence + Error(Subject), data) ## Same as aov(Recall ~ Valence + Error(Subject/Valence), data)
+summary(fit); anova(fit)
 print(model.tables(fit,"means"),digits=3)       
 boxplot(Recall ~ Valence,data=data) 
+
+## MIXED-EFFECTS model:
+
+require(lme4)
+fit_me <- lmer(Recall ~ Valence + (1|Subject), data)
+summary(fit_me); anova(fit_me)
+
+## or:
+
+require(nlme)
+
+fit_lme <- lme(Recall ~ Valence, random=~1|Subject, data)
+summary(fit_lme); anova(fit_lme)
+
