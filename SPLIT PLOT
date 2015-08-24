@@ -1,20 +1,39 @@
 # http://www.maths.bath.ac.uk/~jjf23/mixchange/split.html
 
-install.packages('gsheet')
+library(lme4)
+library(faraway)
+head(irrigation)
+summary(irrigation)
+library(ggplot2)
+ggplot(irrigation, aes(y=yield, x=field, shape=variety, color=irrigation)) + geom_point()
+
+#lmer approach:
+mmod <- lmer(yield ~ irrigation * variety + (1|field),data=irrigation)
+print(summary(mmod),correlation=FALSE)
+anova(mmod)
+confint(mmod)
+
+#aov approach:
+lmod <- aov(yield ~ irrigation*variety + Error(field), irrigation)
+summary(lmod)
+
 library(gsheet)
 splityield <- read.csv(text = 
-                     gsheet2text('https://docs.google.com/spreadsheets/d/1THGClMt_bkP4lYIWqpI3S5mg0uRlGLrP48aVTTIvnX4/edit?usp=sharing',
-                                 format ='csv'))
+                         gsheet2text('https://docs.google.com/spreadsheets/d/1THGClMt_bkP4lYIWqpI3S5mg0uRlGLrP48aVTTIvnX4/edit?usp=sharing',
+                                     format ='csv'))
 head(splityield)
 summary(splityield)
+ggplot(splityield, aes(y=yield, x=block, shape=irrigation, color=fertilizer)) + geom_point()
+str(splityield)
 
-## ANOVA:
-fit <- aov(yield ~ irrigation*fertilizer + Error(block), data=splityield)
-summary(fit); print(fit)
+#lmer approach:
+fita <- lmer(yield ~ irrigation * density * fertilizer + (1|block), data = splityield)
+summary(fita, correlation = F)
+anova(fita)
+confint(fita)
 
-## MIXED MODELS:
-require(lme4)
-fit <- lmer(yield ~ irrigation * fertilizer + (1|block),data=splityield)
-summary(fit); anova(fit)       
-confint(fit)
 
+#aov approach:
+
+fitb <- aov(yield ~ irrigation*density*fertilizer + Error(block), splityield)
+summary(fitb)
