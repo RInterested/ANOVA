@@ -10,10 +10,7 @@ summary(splityield)
 
 ## ANOVA:
 fit <- aov(yield ~ irrigation*fertilizer + Error(block), data=splityield)
-summary(lmod)
-fit <- aov(yield ~ irrigation * density * fertilizer + 
-                 Error(block/irrigation/density), splityield)
-summary(fit)
+summary(fit); print(fit)
 
 ## MIXED MODELS:
 require(lme4)
