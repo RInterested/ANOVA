@@ -36,35 +36,37 @@ summary(fit_lme); anova(fit_lme)
 
 ### SECOND EXAMPLE:
 
+# More complex case with also yield as the DV (continuous), but with 4 "block" parcels of land, divided in eighteen
+# fractions; nine of them irrigated and nine not irrigated (so now irrigation is a binary yes/no). Three in 
+# each irrigation/no_irrigation case subplots are assigned to "density" of seed (low, medium, high), and 
+# for the smallest (highest replication) plot, each density piece will go to fertilizer (N, P or NP).
+
 library(gsheet)
 splityield <- read.csv(text = 
-                         gsheet2text('https://docs.google.com/spreadsheets/d/1THGClMt_bkP4lYIWqpI3S5mg0uRlGLrP48aVTTIvnX4/edit?usp=sharing',
-                                     format ='csv'))
+    gsheet2text('https://docs.google.com/spreadsheets/d/1THGClMt_bkP4lYIWqpI3S5mg0uRlGLrP48aVTTIvnX4/edit?usp=sharing',
+    format ='csv'))
 head(splityield)
 summary(splityield)
 str(splityield)
 
 
-#aov approach:
+#ANOVA (aov) approach:
 
-# From The R Book Michael J Crawley
-# The model formula is specified as a factorial, using the asterisk notation.
-# the error structure is defined in the ERROR term, with the plot sizes 
-# (4 fields (blocks) are the larges plots, followed by their split in half
-# each either irrigated tor not, and followed by three divisions (even smaller
-# plots for low, medium or high denisty), and again followed by three divisions
-# for fertilizer (N, P, or NP) - this last being the smallest plot size with the
-# highest replication).  The error terms are listed from left to right, from 
-# largest to smallest, separated by / . NOTE: the smallest plot size (fertilizer)
-# does not appear in the ERROR term:
+# From The R Book Michael J Crawley: The model formula is specified as a factorial, using the asterisk notation.
+# the error structure is defined in the ERROR term, with the plot sizes  (4 fields (blocks) are the largest plots, 
+# followed by their split in half each either irrigated tor not, and followed by three divisions (even smaller
+# plots for low, medium or high denisty), and again followed by three divisions for fertilizer (N, P, or NP) - 
+# this last being the smallest plot size with the highest replication).  
+# The error terms are listed from left to right, from largest to smallest, separated by / . 
+# NOTE: the smallest plot size (fertilizer - smallest plot) does not appear in the ERROR term:
 
-fitb <- aov(yield ~ irrigation * density * fertilizer + 
+fit_aov <- aov(yield ~ irrigation * density * fertilizer + 
               Error(block/irrigation/density), splityield)
-summary(fitb)
+summary(fit_aov)
 
 # There are 4 ANOVA tables, one for each plot size:
 # The non-significant main effect for density (p = 0.0532) doesn't mean
-# density is unimportant because it is a significant interaction with irrigation
+# density is unimportant because it is a significant interaction with irrigation.
 
 # Understanding interactions:
 
