@@ -76,10 +76,10 @@ interaction.plot(density, irrigation, yield)
 
 
 #lmer approach:
-fita <- lmer(yield ~ irrigation * density * fertilizer + (1|block/irrigation/density), data = splityield)
-summary(fita, correlation = F)
-anova(fita)
-confint(fita)
+fit_me <- lmer(yield ~ irrigation * density * fertilizer + (1|block/irrigation/density), data = splityield)
+summary(fit_me, correlation = F)
+anova(fit_me)
+confint(fit_me)
 
 #... and without interactions:
 
@@ -89,14 +89,14 @@ anova(fit_noin)
 confint(fit_noin)
 
 library(pbkrtest)
-KRmodcomp(fita, fit_noin)
+KRmodcomp(fit_me, fit_noin)
 
 #nlme:
 
 library(nlme)
-fita1 <- lme(yield ~ irrigation * density * fertilizer, 
+fit_lme <- lme(yield ~ irrigation * density * fertilizer, 
              random=~1|block/irrigation/density, splityield)
-summary(fita1); anova(fita1)
+summary(fit_lme); anova(fit_lme)
 
 
 
