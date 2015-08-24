@@ -1,27 +1,37 @@
 ### FIRST EXAMPLE:
 
-#From http://www.maths.bath.ac.uk/~jjf23/mixchange/split.html
+# From http://www.maths.bath.ac.uk/~jjf23/mixchange/split.html
+
+# We have eight agricultural fields (largest "plots" in the design), and each one is assigned to an irrigation
+# method (so Irrigation is a factor with 4 levels), so that each irrigation factor will be practiced in two
+# different fields. Each field is further split in two, and a "variety" of two types of seed (v1 and v2) will be
+# planted in each half. So variety and irrigation are fixed effects, and the field is a random effect.
+
+# Loading data and libraries:
 
 library(lme4)
 library(faraway)
-head(irrigation)
-summary(irrigation)
 library(ggplot2)
+head(irrigation)
 ggplot(irrigation, aes(y=yield, x=field, shape=variety, color=irrigation)) + geom_point()
 
-#lmer approach:
-mmod <- lmer(yield ~ irrigation * variety + (1|field),data=irrigation)
-print(summary(mmod),correlation=FALSE)
-anova(mmod)
-confint(mmod)
-
-library(nlme)
-mmod2 <- lme(yield ~ irrigation*variety, random=~1|field, irrigation)
-summary(mmod2); anova(mmod2)
-
-#aov approach:
-lmod <- aov(yield ~ irrigation*variety + Error(field), irrigation)
+# ANOVA(aov) approach:
+fit_aov <- aov(yield ~ irrigation * variety + Error(field), irrigation)
 summary(lmod)
+print(model.tables(fit_aov,"means"),digits=3) 
+
+#lmer approach:
+fit_me <- lmer(yield ~ irrigation * variety + (1|field), data = irrigation)
+print(summary(fit_me), correlation=FALSE)
+anova(fit_me)
+confint(fit_me)
+
+#nlme:
+library(nlme)
+fit_lme <- lme(yield ~ irrigation*variety, random=~1|field, irrigation)
+summary(fit_lme); anova(fit_lme)
+
+
 
 
 ### SECOND EXAMPLE:
