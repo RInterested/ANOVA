@@ -13,6 +13,10 @@ print(summary(mmod),correlation=FALSE)
 anova(mmod)
 confint(mmod)
 
+library(nlme)
+mmod2 <- lme(yield ~ irrigation*variety, random=~1|field, irrigation)
+summary(mmod2); anova(mmod2)
+
 #aov approach:
 lmod <- aov(yield ~ irrigation*variety + Error(field), irrigation)
 summary(lmod)
@@ -31,6 +35,22 @@ fita <- lmer(yield ~ irrigation * density * fertilizer + (1|block), data = split
 summary(fita, correlation = F)
 anova(fita)
 confint(fita)
+
+#... and without interactions:
+
+fit_noin <- lmer(yield ~ irrigation + density + fertilizer + (1|block), data = splityield)
+summary(fit_noin, correlation = F)
+anova(fit_noin)
+confint(fit_noin)
+
+library(pbkrtest)
+KRmodcomp(fita, fit_noin)
+
+#nlme:
+
+library(nlme)
+fita1 <- lme(yield ~ irrigation * density * fertilizer, random=~1|block, splityield)
+summary(fita1); anova(fita1)
 
 
 #aov approach:
