@@ -1,11 +1,15 @@
 ## http://r.789695.n4.nabble.com/lme4-How-to-specify-nested-factors-meaning-of-and-in-td853351.html
 
+# Concentration of Glycogen in the liver of rats. Just TWO rats that receive three "Treatment" (factor variable) each.
+# and for each combination of Rat and Treatment, two Liver preparations are obtained.
+# https://docs.google.com/document/d/1MwsgdSLm9fY0entw2NOmDstkWVYlHWcfzFxxP4G3q6c/edit?usp=sharing
+
 install.packages('gsheet')
 
 library(gsheet)
 rats <- read.csv(text = 
-                   gsheet2text('https://drive.google.com/open?id=1bAXU6OKVtaC1pVf5dAI2ihXQJTaW_71zah_Ikos1kDw',
-                               format ='csv'))
+  gsheet2text('https://drive.google.com/open?id=1bAXU6OKVtaC1pVf5dAI2ihXQJTaW_71zah_Ikos1kDw',
+  format ='csv'))
 head(rats)
 str(rats)
 rats$Treatment <- as.factor(rats$Treatment)
@@ -13,39 +17,40 @@ rats$Liver <- as.factor(rats$Liver)
 rats$Rat <- as.factor(rats$Rat)
 boxplot(Glycogen ~ Treatment, rats)
 
-## ANOVA:
+## ANOVA (aov):
 
 # Treatment - Fixed Factor:
-fit1 <- aov(Glycogen ~ Treatment + Error(Rat/Liver), rats) 
-summary(fit1)
-fit1
+fit_aov <- aov(Glycogen ~ Treatment + Error(Rat/Liver), rats) 
+summary(fit_aov); print(model.tables(fit_aov,"means"),digits=3) 
 # CONCLUSION: Treatment 2 is statistically significant
 
 # Rats - random factor:
-fit1a <- aov(Glycogen ~ Treatment + Rat + Error(Liver), rats) 
-summary(fit1a)
+fit_r <- aov(Glycogen ~ Treatment + Rat + Error(Liver), rats) 
+summary(fit_r)
 # CONCLUSION: significant glycogen variation between rats.
 
 # Liver - random factor:
-fit1b <- aov(Glycogen ~ Treatment + Rat + Liver, rats) 
-summary(fit1b)
+fit_l <- aov(Glycogen ~ Treatment + Rat + Liver, rats) 
+summary(fit_l)
 # CONCLUSION: No signif variation between liver preparations.
 
 ## MIXED EFFECTS:
 
 require(lme4)
-fit2<-lmer(Glycogen~Treatment+(1|Rat/Liver), rats)
-summary(fit2); anova(fit2); confint(fit2)
+fit_me<-lmer(Glycogen ~ Treatment + (1|Rat/Liver), rats)
+summary(fit_me); anova(fit_me); confint(fit_me)
 
 # CONCLUSIONS: Variations between rats > between liver preps.
 
 
 
-plot(resid(fit2) ~ fitted(fit2))
+plot(resid(fit_me) ~ fitted(fit_me))
 # No patterns
 
+
+# With nlme:
 require(nlme)
-fit3<-lme(Glycogen~Treatment, random=~1|Rat/Liver, rats)
-summary(fit3); anova(fit3); VarCorr(fit3)
+fit_lme<-lme(Glycogen~Treatment, random=~1|Rat/Liver, rats)
+summary(fit_lme); anova(fit_lme); VarCorr(fit_lme)
 
 
