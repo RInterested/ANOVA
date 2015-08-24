@@ -18,7 +18,6 @@ summary(fit)
 ## MIXED MODELS:
 require(lme4)
 fit <- lmer(yield ~ irrigation * fertilizer + (1|block),data=splityield)
-print(summary(mmod),correlation=FALSE)
 summary(fit); anova(fit)       
 confint(fit)
 
