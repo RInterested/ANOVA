@@ -37,6 +37,7 @@ summary(fit_l)
 ## MIXED EFFECTS:
 
 require(lme4)
+require(lmerTest)
 fit_me<-lmer(Glycogen ~ Treatment + (1|Rat/Liver), rats)
 summary(fit_me); anova(fit_me); confint(fit_me)
 
