@@ -79,6 +79,7 @@ interaction.plot(density, irrigation, yield)
 
 #lmer approach:
 library(lme4)
+library(lmerTest)
 fit_me <- lmer(yield ~ irrigation * density * fertilizer + (1|block/irrigation/density), data = splityield)
 summary(fit_me, correlation = F)
 anova(fit_me)
