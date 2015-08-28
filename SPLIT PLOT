@@ -10,6 +10,7 @@
 # Loading data and libraries:
 
 library(lme4)
+library(lmerTest)
 library(faraway)
 library(ggplot2)
 head(irrigation)
