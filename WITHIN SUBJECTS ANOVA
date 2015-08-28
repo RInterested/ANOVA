@@ -14,7 +14,7 @@ format ='csv'))
 ## ANOVA (aov) model:
 
 fit_aov <- aov(Recall ~ Valence + Error(Subject), data) ## Same as aov(Recall ~ Valence + Error(Subject/Valence), data)
-summary(fit_aov); anova(fit_aov)
+summary(fit_aov)
 print(model.tables(fit_aov,"means"),digits=3)       
 boxplot(Recall ~ Valence, data=data) 
 
