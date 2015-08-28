@@ -21,6 +21,7 @@ boxplot(Recall ~ Valence, data=data)
 ## MIXED-EFFECTS model:
 
 require(lme4)
+require(lmerTest)
 fit_me <- lmer(Recall ~ Valence + (1|Subject), data)
 summary(fit_me); anova(fit_me)
 
