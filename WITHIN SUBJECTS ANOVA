@@ -23,12 +23,12 @@ boxplot(Recall ~ Valence, data=data)
 require(lme4)
 require(lmerTest)
 fit_me <- lmer(Recall ~ Valence + (1|Subject), data)
-summary(fit_me); anova(fit_me)
+summary(fit_me); anova(fit_me); coefficients(fit_me); confint(fit_me)
 
 ## or:
 
 require(nlme)
 
 fit_lme <- lme(Recall ~ Valence, random=~1|Subject, data)
-summary(fit_lme); anova(fit_lme)
+summary(fit_lme); anova(fit_lme); coefficients(fit_lme); confint(fit_lme)
 
