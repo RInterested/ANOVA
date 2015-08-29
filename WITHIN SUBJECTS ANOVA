@@ -8,27 +8,31 @@ install.packages('gsheet')
 # Loading data:
 library(gsheet)
 data <- read.csv(text = 
-gsheet2text('https://drive.google.com/open?id=1iVDJ_g3MjhxLhyyLHGd4PhYhsYW7Ob0JmaJP8MarWXU',
-format ='csv'))
+                   gsheet2text('https://drive.google.com/open?id=1iVDJ_g3MjhxLhyyLHGd4PhYhsYW7Ob0JmaJP8MarWXU',
+                               format ='csv'))
+data$Time <- as.factor(data$Time)
+str(data)
 
 ## ANOVA (aov) model:
 
-fit_aov <- aov(Recall_Rate ~ Emtl_Value * as.factor(Time) + Error(Subject), data) ## Same as aov(Recall ~ Valence + Error(Subject/Valence), data)
+fit_aov <- aov(Recall_Rate ~ Emtl_Value * Time + Error(Subject/Time), data) ## Same as aov(Recall ~ Valence + Error(Subject/Valence), data)
+
 summary(fit_aov)
 print(model.tables(fit_aov,"means"),digits=3)       
 boxplot(Recall_Rate ~ Emtl_Value, data=data) 
+with(data, interaction.plot(Time, Emtl_Value, Recall_Rate))
+with(data, interaction.plot(Subject, Emtl_Value, Recall_Rate))
 
 ## MIXED-EFFECTS model:
 
 require(lme4)
 require(lmerTest)
-fit_me <- lmer(Recall_Rate ~ Emotl_Value * as.factor(Time) + (1|Subject), data)
+fit_me <- lmer(Recall_Rate ~ Emtl_Value * Time + (1|Subject/Time), data)
 summary(fit_me); anova(fit_me); coefficients(fit_me); confint(fit_me)
 
 ## or:
 
 require(nlme)
 
-fit_lme <- lme(Recall_Rate ~ Emotl_Value * as.factor(Time), random=~1|Subject, data)
+fit_lme <- lme(Recall_Rate ~ Emtl_Value * Time, random = ~1|Subject/Time, data)
 summary(fit_lme); anova(fit_lme); coefficients(fit_lme); confint(fit_lme)
-
