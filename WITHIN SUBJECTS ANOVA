@@ -13,22 +13,22 @@ format ='csv'))
 
 ## ANOVA (aov) model:
 
-fit_aov <- aov(Recall ~ Valence + Error(Subject), data) ## Same as aov(Recall ~ Valence + Error(Subject/Valence), data)
+fit_aov <- aov(Recall_Rate ~ Emtl_Value * as.factor(Time) + Error(Subject), data) ## Same as aov(Recall ~ Valence + Error(Subject/Valence), data)
 summary(fit_aov)
 print(model.tables(fit_aov,"means"),digits=3)       
-boxplot(Recall ~ Valence, data=data) 
+boxplot(Recall_Rate ~ Emtl_Value, data=data) 
 
 ## MIXED-EFFECTS model:
 
 require(lme4)
 require(lmerTest)
-fit_me <- lmer(Recall ~ Valence + (1|Subject), data)
+fit_me <- lmer(Recall_Rate ~ Emotl_Value * as.factor(Time) + (1|Subject), data)
 summary(fit_me); anova(fit_me); coefficients(fit_me); confint(fit_me)
 
 ## or:
 
 require(nlme)
 
-fit_lme <- lme(Recall ~ Valence, random=~1|Subject, data)
+fit_lme <- lme(Recall_Rate ~ Emotl_Value * as.factor(Time), random=~1|Subject, data)
 summary(fit_lme); anova(fit_lme); coefficients(fit_lme); confint(fit_lme)
 
